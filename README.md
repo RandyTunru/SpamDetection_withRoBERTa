@@ -26,7 +26,7 @@ Berdasarkan problem statements tersebut, maka Goals dari penelitian ini adalah
 
 ## Data Understanding
 
-Pada proyek ini, dataset yang digunakan berasal dari kaggle yaitu Spam Emails [Kaggle](https://www.kaggle.com/datasets/abdallahwagih/spam-emails). Dataset ini memiliki 5572 data, dengan 87% data merupakan "ham" dan 13% merupakan "spam", data terdiri dari 2 kolom yaitu
+Pada proyek ini, dataset yang digunakan berasal yaitu Spam Emails dari [Kaggle](https://www.kaggle.com/datasets/abdallahwagih/spam-emails). Dataset ini memiliki 5572 data, dengan 87% data merupakan "ham" dan 13% merupakan "spam", data terdiri dari 2 kolom yaitu
 
 ### Variabel-variabel pada Restaurant UCI dataset adalah sebagai berikut
 
