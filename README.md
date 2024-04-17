@@ -28,10 +28,10 @@ Berdasarkan problem statements tersebut, maka Goals dari penelitian ini adalah
 
 Pada proyek ini, dataset yang digunakan berasal yaitu Spam Emails dari [Kaggle](https://www.kaggle.com/datasets/abdallahwagih/spam-emails). Dataset ini memiliki 5572 data, dengan 87% data merupakan "ham" dan 13% merupakan "spam", data terdiri dari 2 kolom yaitu
 
-### Variabel-variabel pada Restaurant UCI dataset adalah sebagai berikut
+### Variabel-variabel pada Spam Email dataset adalah sebagai berikut
 
 - Messages : Feature, berisi teks dari pesan email.
-- cuisine : Target, merupakan kategori dari pesan email tersebut, terdapat 2 jenis kategori yaitu "ham" atau bukan spam dan "spam".
+- Category : Target, merupakan kategori dari pesan email tersebut, terdapat 2 jenis kategori yaitu "ham" atau bukan spam dan "spam".
 
 !["Persebaran Data"](images/download.png)
 
