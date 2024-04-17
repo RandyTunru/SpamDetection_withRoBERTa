@@ -69,6 +69,7 @@ class SpamDataset(Dataset):
     def __getitem__(self, idx):
         return {'input_ids': self.inputs[idx], 'labels': self.labels[idx]}
 ```
+
 Setelah itu dilakukan Label Encoding pada target kita yaitu 'Category', tahap ini dilakukan dengan menggunakan dictionary sederhana dimana kategori 'Ham' akan bernilai 0 dan kategori 'Spam' bernilai 1
 
 Untuk feature kita yaitu 'message', dilakukan Tokenization menggunakan Tokenizer dari kelas `RobertaTokenizer`, kita menggunakan Tokenizer dari `roberta-base`.
