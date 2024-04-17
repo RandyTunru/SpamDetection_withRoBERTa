@@ -28,30 +28,34 @@ Berdasarkan problem statements tersebut, maka Goals dari penelitian ini adalah
 
 Pada proyek ini, dataset yang digunakan berasal yaitu Spam Emails dari [Kaggle](https://www.kaggle.com/datasets/abdallahwagih/spam-emails). Dataset ini memiliki 5572 data, dengan 87% data merupakan "ham" dan 13% merupakan "spam", data terdiri dari 2 kolom yaitu
 
-### Variabel-variabel pada Restaurant UCI dataset adalah sebagai berikut
+### Variabel-variabel pada Spam Email dataset adalah sebagai berikut
 
 - Messages : Feature, berisi teks dari pesan email.
-- cuisine : Target, merupakan kategori dari pesan email tersebut, terdapat 2 jenis kategori yaitu "ham" atau bukan spam dan "spam".
+- Category : Target, merupakan kategori dari pesan email tersebut, terdapat 2 jenis kategori yaitu "ham" atau bukan spam dan "spam".
 
 !["Persebaran Data"](images/download.png)
+Gambar 1. Distribusi Data
 
-Diagram diatas menunjukkan jumlah data yang merupakan "ham" dan "spam"
+Pada Gambar 1, dapat dilihat distribusi data diantara kedua kelas 'ham' dan 'spam'
 
 !["Panjang 'message' email"](images/download%20(1).png)
+Gambar 2. Histogram Panjang Message pada Dataset
 
-Diagram diatas menunjukkan panjang dari email yang terdapat didalam dataset, dapat diamati bahwa rata-rata panjang pesan diantara 1-200 kata, dan terdapat pesan yang panjangnya diatas 800
+Gambar 2 menunjukkan panjang message pada dataset pada sumbu X, dan Jumlah message dengan panjang tersebut pada sumbu Y. dapat diamati bahwa rata-rata panjang pesan diantara 1-200 kata, dan terdapat pesan yang panjangnya diatas 800
 
 !["Panjang 'message' email spam dan ham"](images/download%20(2).png)
+Gambar 3. Histogram Panjang Message pada kelas 'Ham' dan 'Spam'
 
-Diagram diatas menunjukkan panjang dari email yang spam dan ham, dapat diamati bahwa email ham cenderung memiliki panjang pesan rata-rata, sedangkan pesan ham memiliki panjang pesan yang bervariasi bahkan hingga diatas 800
+Gambar 3 menunjukkan perbandingan panjang message pada kelas 'Spam' dan 'Ham', dapat diamati bahwa email 'spam' cenderung memiliki panjang pesan rata-rata, sedangkan pesan 'ham' memiliki panjang pesan yang bervariasi bahkan hingga diatas 800
 
 !["Wordcloud Spam"](images/download%20(3).png)
+Gambar 4. Wordcloud message spam
 
-Diagram diatas menunjukkan wordcloud dari pesan spam, dapat diamati bahwa pesan spam cenderung memberi iming iming hadiah dan membuat urgensi dan menyuruh penerima pesan untuk melakukan sesuatu seperti call, text dan sebagainya
+Gambar 4 menunjukkan wordcloud pada message spam, dapat diamati bahwa pesan spam cenderung memberi iming iming hadiah dan membuat urgensi dan menyuruh penerima pesan untuk melakukan sesuatu seperti call, text dan sebagainya
 
 ## Data Preparation
 
-Pertama-tama kita mendefinisikan kelas Dataset yang akan kita gunakan
+Ketika menggunakan PyTorch, Pertama-tama kita perlu mendefinisikan kelas Dataset yang akan kita gunakan, pada projek ini kita membuat kelass SpamDataset yang merupakan ekstensi dari Dataset milik PyTorch
 
 ```python
 class SpamDataset(Dataset):
@@ -65,23 +69,31 @@ class SpamDataset(Dataset):
     def __getitem__(self, idx):
         return {'input_ids': self.inputs[idx], 'labels': self.labels[idx]}
 ```
+Setelah itu dilakukan Label Encoding pada target kita yaitu 'Category', tahap ini dilakukan dengan menggunakan dictionary sederhana dimana kategori 'Ham' akan bernilai 0 dan kategori 'Spam' bernilai 1
 
-Lalu kita juga mendefinisikan dictionary untuk mengubah label ke index dan sebaliknya untuk kategori teks
+Untuk feature kita yaitu 'message', dilakukan Tokenization menggunakan Tokenizer dari kelas `RobertaTokenizer`, kita menggunakan Tokenizer dari `roberta-base`.
 
-```python
-LABEL2INDEX = {'ham': 0, 'spam': 1}
-INDEX2LABEL = {0: 'ham', 1: 'spam'}
-```
-
-Terakhir, kita mentokenisasi teks kita menggunakan tokenizer untuk model kita yaitu RoBERTa-base dan melakukan train test split pada data, pada proyek ini split data bernilai 80-20 dan test data tersebut kemudian dibagi menjadi 50-50 lagi menjadi data validasi dan testing
+Tokenizer ini akan mengubah Teks menjadi `input_ids` lalu data tersebut akan diberikan ke device yang akan kita gunakan pada model
 
 ## Modeling
 
 Pada proyek ini, model yang digunakan ialah RoBERTa atau Robustly Optimized BERT Approach, RoBERTa sendiri merupakan model bahasa yang dikembangkan oleh Facebook AI, yang merupakan perluasan dari model BERT (Bidirectional Encoder Representations from Transformers). RoBERTa didasarkan pada arsitektur Transformer dan dilatih dengan pendekatan self-supervised learning.
 
+Proyek ini menggunakan RoBERTa karena beberapa alasan diantaranya:
+
+- Pretrained :  RoBERTa merupakan pretrained language model, pada pretraining nya RoBERTa dilatih menggunakan 160GB data berbahasa inggris yang berasal dari BookCorpus dan Wikipedia.
+- Fine-tuning : RoBERTa dapat di fine-tuning pada berbagai downstream task, dengan melatih ulang weights pada RoBERTa sehingga sesuai dengan dataset pada task kita
+- State-of-the-art  Performance: RoBERTa mencapai performa state-of-the-art pada berbagai benchmark dalam Natural Language Processing
+
+Untuk menggunakan model RoBERTa untuk Klasifikasi, kita perlu mengimport `RobertaForSequenceClassification` lalu memuat model yang akan kita gunakan ke suatu variabel dengan cara `model = RobertaForSequenceClassification.from_pretrained('roberta-base', num_labels=2)` dimana parameter pertama merupakan nama model nya, lalu `num_labels` adalah parameter untuk menentukan jumlah kelas target kita pada output layer nanti
+
+Setelah model diinisialisasi dan Dataset dan Dataloader kita juga menentukan Optimizer, pada proyek ini kita menggunakan Adam Optimizer. kita juga menentukan hyperparameter batch_size dan num_epoch, pada proyek ini kita menggunakan `batch_size = 32` dan `num_epoch = 5`
+
+Model kemudian di train dengan memasukkan fitur fitur dan juga label nya, namun sebelum itu kita perlu mengubah model menjadi mode train dengan `model.train()`, model kemudian akan menghitung loss untuk setiap batch lalu mengupdate parameter dari model, hal ini akan berlangsung selama jumlah epoch, setelah melalui seluruh epoch, model pun selesai training dan kita lanjut ke tahap evaluation
+
 ## Evaluation
 
-Pada proyek ini, metrik evaluasi yang digunakan adalah akurasi, precision, recall, dan F1-Score.
+Untuk evaluation kita perlu kembali mengubah model ke mode evaluation agar data yang masuk tidak mengupdate parameter dengan `model.eval()`. Pada proyek ini, metrik evaluasi yang digunakan adalah akurasi, precision, recall, dan F1-Score.
 
 Akurasi adalah salah satu metrik evaluasi yang umum digunakan dalam klasifikasi. Akurasi mengukur seberapa sering model melakukan prediksi yang benar dibandingkan dengan total jumlah data yang dinilai.
 
@@ -104,4 +116,4 @@ F1-score adalah metrik evaluasi yang menggabungkan precision dan recall menjadi 
 
 $$F1-Score = 2* \frac{Precision * Recall}{Precision + Recall}$$
 
-Pada proyek ini model mendapatkan hasil yang sangat memuaskan dengan Akurasi:0.99 F1-Score:0.98 Recall:0.98 Precision:0.98
+Pada tahap evaluasi, model mendapatkan hasil Akurasi:0.99 F1-Score:0.98 Recall:0.98 Precision:0.98, sehingga model tergolong berhasil dan proyek ini mencapai tujuan nya yaitu membuat model deteksi spam dengan akurasi yang tinggi
